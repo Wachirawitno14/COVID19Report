@@ -1,14 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Kreait\Firebase\Exception\Auth;
 
 use Kreait\Firebase\Exception\AuthException;
-use Kreait\Firebase\Exception\HasRequestAndResponse;
-use RuntimeException;
+use Throwable;
 
-final class InvalidPassword extends RuntimeException implements AuthException
+class InvalidPassword extends AuthException
 {
-    use HasRequestAndResponse;
+    const IDENTIFIER = 'INVALID_PASSWORD';
+
+    public function __construct($code = 0, Throwable $previous = null)
+    {
+        $message = 'The password is invalid or the user does not have a password.';
+
+        parent::__construct($message, $code, $previous);
+    }
 }

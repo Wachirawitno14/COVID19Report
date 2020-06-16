@@ -1,14 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Kreait\Firebase\Exception\Auth;
 
 use Kreait\Firebase\Exception\AuthException;
-use Kreait\Firebase\Exception\HasRequestAndResponse;
-use RuntimeException;
+use Throwable;
 
-final class MissingPassword extends RuntimeException implements AuthException
+class MissingPassword extends AuthException
 {
-    use HasRequestAndResponse;
+    const IDENTIFIER = 'MISSING_PASSWORD';
+
+    public function __construct($code = 0, Throwable $previous = null)
+    {
+        $message = 'Missing Password: An email user must have a password.';
+
+        parent::__construct($message, $code, $previous);
+    }
 }

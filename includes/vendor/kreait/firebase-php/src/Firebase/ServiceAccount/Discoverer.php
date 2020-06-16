@@ -1,13 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Kreait\Firebase\ServiceAccount;
 
 use Google\Auth\CredentialsLoader;
 use Kreait\Firebase\Exception\ServiceAccountDiscoveryFailed;
 use Kreait\Firebase\ServiceAccount;
-use Throwable;
 
 class Discoverer
 {
@@ -19,9 +16,9 @@ class Discoverer
     /**
      * @param callable[] $methods
      */
-    public function __construct(array $methods = null)
+    public function __construct(array $methods = [])
     {
-        $this->methods = $methods ?? $this->getDefaultMethods();
+        $this->methods = $methods ?: $this->getDefaultMethods();
     }
 
     public function getDefaultMethods(): array
@@ -30,7 +27,6 @@ class Discoverer
             new Discovery\FromEnvironmentVariable('FIREBASE_CREDENTIALS'),
             new Discovery\FromEnvironmentVariable(CredentialsLoader::ENV_VAR),
             new Discovery\FromGoogleWellKnownFile(),
-            new Discovery\OnGoogleCloudPlatform(),
         ];
     }
 
@@ -38,10 +34,10 @@ class Discoverer
     {
         $messages = [];
 
-        $serviceAccount = \array_reduce($this->methods, static function ($discovered, callable $method) use (&$messages) {
+        $serviceAccount = array_reduce($this->methods, function ($discovered, callable $method) use (&$messages) {
             try {
                 $discovered = $discovered ?? $method();
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 $messages[] = $e->getMessage();
             }
 
@@ -49,7 +45,7 @@ class Discoverer
         });
 
         if (!($serviceAccount instanceof ServiceAccount)) {
-            throw new ServiceAccountDiscoveryFailed(\implode(\PHP_EOL, $messages));
+            throw new ServiceAccountDiscoveryFailed(implode(PHP_EOL, $messages));
         }
 
         return $serviceAccount;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Kreait\Firebase\Auth;
 
 use DateTimeImmutable;
-use Kreait\Firebase\Util\DT;
-use Kreait\Firebase\Util\JSON;
+use Kreait\Firebase\Exception\AuthException;
+use Kreait\Firebase\Util\Util;
 
 class UserRecord implements \JsonSerializable
 {
@@ -21,9 +21,9 @@ class UserRecord implements \JsonSerializable
     public $email;
 
     /**
-     * @var bool
+     * @var bool|null
      */
-    public $emailVerified = false;
+    public $emailVerified;
 
     /**
      * @var string|null
@@ -33,7 +33,7 @@ class UserRecord implements \JsonSerializable
     /**
      * @var string|null
      */
-    public $photoUrl;
+    public $photoURL;
 
     /**
      * @var string|null
@@ -63,7 +63,7 @@ class UserRecord implements \JsonSerializable
     /**
      * @var array
      */
-    public $customAttributes;
+    public $customClaims;
 
     /**
      * @var DateTimeImmutable|null
@@ -74,14 +74,18 @@ class UserRecord implements \JsonSerializable
     {
     }
 
-    public static function fromResponseData(array $data): self
+    public static function fromResponseData(array $data)
     {
+        if (!array_key_exists('localId', $data)) {
+            throw new AuthException('Invalid user record data.');
+        }
+
         $record = new self();
         $record->uid = $data['localId'];
         $record->email = $data['email'] ?? null;
-        $record->emailVerified = $data['emailVerified'] ?? false;
+        $record->emailVerified = $data['emailVerified'] ?? null;
         $record->displayName = $data['displayName'] ?? null;
-        $record->photoUrl = $data['photoUrl'] ?? null;
+        $record->photoURL = $data['photoURL'] ?? null;
         $record->phoneNumber = $data['phoneNumber'] ?? null;
         $record->disabled = $data['disabled'] ?? false;
         $record->metadata = self::userMetaDataFromResponseData($data);
@@ -89,11 +93,7 @@ class UserRecord implements \JsonSerializable
         $record->passwordHash = $data['passwordHash'] ?? null;
 
         if ($data['validSince'] ?? null) {
-            $record->tokensValidAfterTime = DT::toUTCDateTimeImmutable($data['validSince']);
-        }
-
-        if ($customAttributes = $data['customAttributes'] ?? '{}') {
-            $record->customAttributes = JSON::decode($customAttributes, true);
+            $record->tokensValidAfterTime = Util::parseTimestamp($data['validSince']);
         }
 
         return $record;
@@ -106,26 +106,27 @@ class UserRecord implements \JsonSerializable
 
     private static function userInfoFromResponseData(array $data): array
     {
-        return \array_map(static function (array $userInfoData) {
+        return array_map(function (array $userInfoData) {
             return UserInfo::fromResponseData($userInfoData);
         }, $data['providerUserInfo'] ?? []);
     }
 
-    /**
-     * @deprecated 4.33
-     */
     public function toArray(): array
     {
-        return \get_object_vars($this);
+        return get_object_vars($this);
     }
 
     public function jsonSerialize()
     {
-        $data = \get_object_vars($this);
+        $data = $this->toArray();
+        $data['providerData'] = array_map(function (UserInfo $userInfo) {
+            return $userInfo->jsonSerialize();
+        }, $data['providerData']);
+        $data['metadata'] = $this->metadata->jsonSerialize();
 
-        $data['tokensValidAfterTime'] = $this->tokensValidAfterTime
-            ? $this->tokensValidAfterTime->format(\DATE_ATOM)
-            : null;
+        if ($data['tokensValidAfterTime']) {
+            $data['tokensValidAfterTime'] = $data['tokensValidAfterTime']->format(DATE_ATOM);
+        }
 
         return $data;
     }

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Kreait\Firebase\Database\Query\Filter;
 
 use Kreait\Firebase\Database\Query\Filter;

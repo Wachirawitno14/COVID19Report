@@ -1,7 +1,5 @@
 {
     "require": {
-        "kreait/firebase-php": "4.40.0",
-        "kreait/firebase-tokens": "^1.10",
-        "google/cloud-firestore": "^1.13"
+        "kreait/firebase-php": "4.0"
     }
 }

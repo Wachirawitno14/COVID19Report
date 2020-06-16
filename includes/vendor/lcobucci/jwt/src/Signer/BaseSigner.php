@@ -13,8 +13,6 @@ use Lcobucci\JWT\Signer;
 /**
  * Base class for signers
  *
- * @deprecated This class will be removed on v4
- *
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 0.1.0
  */
@@ -61,8 +59,6 @@ abstract class BaseSigner implements Signer
     /**
      * Creates a hash with the given data
      *
-     * @internal
-     *
      * @param string $payload
      * @param Key $key
      *
@@ -71,11 +67,8 @@ abstract class BaseSigner implements Signer
     abstract public function createHash($payload, Key $key);
 
     /**
-     * Performs the signature verification
+     * Creates a hash with the given data
      *
-     * @internal
-     *
-     * @param string $expected
      * @param string $payload
      * @param Key $key
      *

@@ -1,39 +1,5 @@
 # CHANGELOG
 
-## 1.10.0 - 2020-01-14
-
-- Added support for Guzzle 7
-- Improved error handling and error messages
-
-## 1.9.1 - 2019-08-26
-
-- Bumped `kreait/clock` to `^1.0.1` (1.0.0 had PHPUnit required as a non-dev dependency)
-
-## 1.9.0 - 2019-08-26
-
-- Re-implemented the functionality in the `Kreait\Firebase\JWT` namespace.
-- Added `Kreait\Firebase\JWT\CustomTokenGenerator` as the recommended replacement for `Firebase\Auth\Token\Generator`
-- Added `Kreait\Firebase\JWT\IdTokenVerifier` as the recommended replacement for `Firebase\Auth\Token\Verifier`
-- After updating, please refer to the [Migration Documentation](MIGRATE-1.x-to-2.0.md) to be ready for the 2.0 release of this library.
-
-## 1.8.1 - 2019-08-20
-
-- `Firebase\Auth\Token\Exception\InvalidToken` can now have any `Throwable` as the `$previous` parameter.
-
-## 1.8.0 - 2019-06-12
-
-- The "auth_time" and "iat" claims are now verified with a 5 minute leeway, 
-  this is the [same behaviour as in the Firebase Admin .NET SDK](https://github.com/firebase/firebase-admin-dotnet/pull/29) 
-  (thanks [@navee85](https://github.com/navee85))
-
-## 1.7.2 - 2018-10-27
-
-- ID Tokens must have a valid "auth_time" claim.
-- The signature of an ID Token is now verified even if a prior error occured (thanks [@kanoblake](https://github.com/kanoblake) for reporting the issue and providing a test case)
-- Tokens with an invalid signature now throw a `Firebase\Auth\Token\Exception\InvalidSignature` exception.
-  It extends the previously thrown `Firebase\Auth\Token\Exception\InvalidToken`,
-  so existing behaviour doesn't change.
-
 ## 1.7.1 - 2018-01-07
 
 - Fix bug that not more than one custom token could be created at a time.

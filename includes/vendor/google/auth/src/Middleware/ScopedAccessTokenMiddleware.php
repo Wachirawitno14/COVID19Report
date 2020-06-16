@@ -76,8 +76,7 @@ class ScopedAccessTokenMiddleware
         $this->tokenFunc = $tokenFunc;
         if (!(is_string($scopes) || is_array($scopes))) {
             throw new \InvalidArgumentException(
-                'wants scope should be string or array'
-            );
+                'wants scope should be string or array');
         }
         $this->scopes = $scopes;
 
@@ -120,6 +119,7 @@ class ScopedAccessTokenMiddleware
      *   $res = $client->get('myproject/taskqueues/myqueue');
      *
      * @param callable $handler
+     *
      * @return \Closure
      */
     public function __invoke(callable $handler)

@@ -15,7 +15,7 @@ class RuleSet implements JsonSerializable
 
     private function __construct(array $rules)
     {
-        if (!\array_key_exists('rules', $rules)) {
+        if (!array_key_exists('rules', $rules)) {
             $rules = ['rules' => $rules];
         }
 
@@ -28,6 +28,8 @@ class RuleSet implements JsonSerializable
      * all users of your app but don't want it open to the world.
      *
      * @see https://firebase.google.com/docs/database/security/quickstart#sample-rules
+     *
+     * @return self
      */
     public static function default(): self
     {
@@ -48,6 +50,8 @@ class RuleSet implements JsonSerializable
      * configure more secure rules before launching your app.
      *
      * @see https://firebase.google.com/docs/database/security/quickstart#sample-rules
+     *
+     * @return self
      */
     public static function public(): self
     {
@@ -64,6 +68,8 @@ class RuleSet implements JsonSerializable
      * you can only access the database through the Firebase console and an Admin SDK.
      *
      * @see https://firebase.google.com/docs/database/security/quickstart#sample-rules
+     *
+     * @return self
      */
     public static function private(): self
     {

@@ -1,14 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Kreait\Firebase\Exception\Auth;
 
 use Kreait\Firebase\Exception\AuthException;
-use Kreait\Firebase\Exception\HasRequestAndResponse;
-use RuntimeException;
+use Throwable;
 
-final class OperationNotAllowed extends RuntimeException implements AuthException
+class OperationNotAllowed extends AuthException
 {
-    use HasRequestAndResponse;
+    const IDENTIFER = 'OPERATION_NOT_ALLOWED';
+
+    public function __construct($code = 0, Throwable $previous = null)
+    {
+        $message = 'Operation not allowed.';
+
+        parent::__construct($message, $code, $previous);
+    }
 }

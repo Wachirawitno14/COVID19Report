@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Kreait\Firebase\Database\Query;
 
 use Psr\Http\Message\UriInterface;
@@ -10,6 +8,10 @@ interface Modifier
 {
     /**
      * Modifies the given URI and returns it.
+     *
+     * @param UriInterface $uri
+     *
+     * @return UriInterface
      */
     public function modifyUri(UriInterface $uri): UriInterface;
 

@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace Kreait\Firebase\Exception\Auth;
 
 use Kreait\Firebase\Exception\AuthException;
-use Kreait\Firebase\Exception\HasRequestAndResponse;
 use Lcobucci\JWT\Token;
-use RuntimeException;
 use Throwable;
 
-final class RevokedIdToken extends RuntimeException implements AuthException
+class RevokedIdToken extends AuthException
 {
-    use HasRequestAndResponse;
-
-    /** @var Token */
+    /**
+     * @var Token
+     */
     private $token;
 
     public function __construct(Token $token, string $message = '', int $code = 0, Throwable $previous = null)
@@ -28,6 +26,8 @@ final class RevokedIdToken extends RuntimeException implements AuthException
 
     public function getToken(): Token
     {
+        // @codeCoverageIgnoreStart
         return $this->token;
+        // @codeCoverageIgnoreEnd
     }
 }

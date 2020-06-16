@@ -13,7 +13,7 @@ use org\bovigo\vfs\vfsStream;
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 3.0.4
  */
-class KeyTest extends \PHPUnit\Framework\TestCase
+class KeyTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @before
@@ -23,10 +23,7 @@ class KeyTest extends \PHPUnit\Framework\TestCase
         vfsStream::setup(
             'root',
             null,
-            [
-                'test.pem' => 'testing',
-                'emptyFolder' => []
-            ]
+            ['test.pem' => 'testing']
         );
     }
 
@@ -71,20 +68,6 @@ class KeyTest extends \PHPUnit\Framework\TestCase
     public function constructShouldRaiseExceptionWhenFileDoesNotExists()
     {
         new Key('file://' . vfsStream::url('root/test2.pem'));
-    }
-
-    /**
-     * @test
-     *
-     * @expectedException \InvalidArgumentException
-     *
-     * @covers Lcobucci\JWT\Signer\Key::__construct
-     * @covers Lcobucci\JWT\Signer\Key::setContent
-     * @covers Lcobucci\JWT\Signer\Key::readFile
-     */
-    public function constructShouldRaiseExceptionWhenFileGetContentsFailed()
-    {
-        new Key('file://' . vfsStream::url('root/emptyFolder'));
     }
 
     /**

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Kreait\Firebase\Database\Query\Sorter;
 
 use Kreait\Firebase\Database\Query\ModifierTrait;
@@ -23,7 +21,7 @@ final class OrderByKey implements Sorter
             return $value;
         }
 
-        \ksort($value);
+        ksort($value);
 
         return $value;
     }

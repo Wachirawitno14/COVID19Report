@@ -353,38 +353,12 @@ class GoogleStorageAdapterTests extends \PHPUnit_Framework_TestCase
 
         $storageObject = Mockery::mock(StorageObject::class);
         $storageObject->shouldReceive('delete')
-            ->times(3);
-        $storageObject->shouldReceive('name')
-            ->once()
-            ->andReturn('prefix/dir_name/directory1/file1.txt');
-        $storageObject->shouldReceive('info')
-            ->once()
-            ->andReturn([
-                'updated' => '2016-09-26T14:44:42+00:00',
-                'contentType' => 'text/plain',
-                'size' => 5,
-            ]);
-
-        $bucket->shouldReceive('object')
-            ->with('prefix/dir_name/directory1/file1.txt')
-            ->once()
-            ->andReturn($storageObject);
-
-        $bucket->shouldReceive('object')
-            ->with('prefix/dir_name/directory1/')
-            ->once()
-            ->andReturn($storageObject);
+            ->once();
 
         $bucket->shouldReceive('object')
             ->with('prefix/dir_name/')
             ->once()
             ->andReturn($storageObject);
-
-        $bucket->shouldReceive('objects')
-            ->with([
-                'prefix' => 'prefix/dir_name/'
-            ])->once()
-            ->andReturn([$storageObject]);
 
         $adapter = new GoogleStorageAdapter($storageClient, $bucket, 'prefix');
 
@@ -398,39 +372,12 @@ class GoogleStorageAdapterTests extends \PHPUnit_Framework_TestCase
 
         $storageObject = Mockery::mock(StorageObject::class);
         $storageObject->shouldReceive('delete')
-            ->times(3);
-
-        $storageObject->shouldReceive('name')
-            ->once()
-            ->andReturn('prefix/dir_name/directory1/file1.txt');
-        $storageObject->shouldReceive('info')
-            ->once()
-            ->andReturn([
-                'updated' => '2016-09-26T14:44:42+00:00',
-                'contentType' => 'text/plain',
-                'size' => 5,
-            ]);
-
-        $bucket->shouldReceive('object')
-            ->with('prefix/dir_name/directory1/file1.txt')
-            ->once()
-            ->andReturn($storageObject);
-
-        $bucket->shouldReceive('object')
-            ->with('prefix/dir_name/directory1/')
-            ->once()
-            ->andReturn($storageObject);
+            ->once();
 
         $bucket->shouldReceive('object')
             ->with('prefix/dir_name/')
             ->once()
             ->andReturn($storageObject);
-
-        $bucket->shouldReceive('objects')
-            ->with([
-                'prefix' => 'prefix/dir_name/'
-            ])->once()
-            ->andReturn([$storageObject]);
 
         $adapter = new GoogleStorageAdapter($storageClient, $bucket, 'prefix');
 
@@ -965,14 +912,12 @@ class GoogleStorageAdapterTests extends \PHPUnit_Framework_TestCase
 
         $adapter = new GoogleStorageAdapter($storageClient, $bucket);
         $this->assertEquals('https://storage.googleapis.com/my-bucket/file.txt', $adapter->getUrl('file.txt'));
-        $this->assertEquals('https://storage.googleapis.com/my-bucket/test%20folder/file%281%29.txt', $adapter->getUrl('test folder/file(1).txt'));
 
         $adapter->setPathPrefix('prefix');
         $this->assertEquals('https://storage.googleapis.com/my-bucket/prefix/file.txt', $adapter->getUrl('file.txt'));
 
         $adapter->setStorageApiUri('http://my-domain.com/');
         $adapter->setPathPrefix('another-prefix');
-        // no bucket name on custom domain
-        $this->assertEquals('http://my-domain.com/another-prefix/dir/file.txt', $adapter->getUrl('dir/file.txt'));
+        $this->assertEquals('http://my-domain.com/my-bucket/another-prefix/dir/file.txt', $adapter->getUrl('dir/file.txt'));
     }
 }

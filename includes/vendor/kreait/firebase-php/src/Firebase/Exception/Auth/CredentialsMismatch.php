@@ -1,14 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Kreait\Firebase\Exception\Auth;
 
 use Kreait\Firebase\Exception\AuthException;
-use Kreait\Firebase\Exception\HasRequestAndResponse;
-use RuntimeException;
+use Throwable;
 
-final class CredentialsMismatch extends RuntimeException implements AuthException
+class CredentialsMismatch extends AuthException
 {
-    use HasRequestAndResponse;
+    const IDENTIFER = 'CREDENTIALS_MISMATCH';
+
+    public function __construct($code = 0, Throwable $previous = null)
+    {
+        $message = 'Invalid custom token: The custom token corresponds to a different Firebase project.';
+
+        parent::__construct($message, $code, $previous);
+    }
 }

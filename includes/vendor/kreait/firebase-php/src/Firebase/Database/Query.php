@@ -1,13 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Kreait\Firebase\Database;
 
 use Kreait\Firebase\Database\Query\Filter;
 use Kreait\Firebase\Database\Query\Sorter;
-use Kreait\Firebase\Exception\Database\UnsupportedQuery;
-use Kreait\Firebase\Exception\DatabaseException;
+use Kreait\Firebase\Exception\ApiException;
+use Kreait\Firebase\Exception\QueryException;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -25,20 +23,32 @@ use Psr\Http\Message\UriInterface;
  */
 class Query
 {
-    /** @var Reference */
+    /**
+     * @var Reference
+     */
     private $reference;
 
-    /** @var ApiClient */
+    /**
+     * @var ApiClient
+     */
     private $apiClient;
 
-    /** @var Filter[] */
+    /**
+     * @var Filter[]
+     */
     private $filters;
 
-    /** @var Sorter|null */
+    /**
+     * @var Sorter
+     */
     private $sorter;
 
     /**
-     * @internal
+     * Creates a new Query for the given Reference which is
+     * executed by the given API client.
+     *
+     * @param Reference $reference
+     * @param ApiClient $apiClient
      */
     public function __construct(Reference $reference, ApiClient $apiClient)
     {
@@ -51,6 +61,8 @@ class Query
      * Returns a Reference to the Query's location.
      *
      * @see https://firebase.google.com/docs/reference/js/firebase.database.Query#ref
+     *
+     * @return Reference
      */
     public function getReference(): Reference
     {
@@ -60,14 +72,16 @@ class Query
     /**
      * Returns a data snapshot of the current location.
      *
-     * @throws UnsupportedQuery if an error occurred
+     * @throws QueryException if an error occurred
+     *
+     * @return Snapshot
      */
     public function getSnapshot(): Snapshot
     {
         try {
             $value = $this->apiClient->get($this->getUri());
-        } catch (DatabaseException $e) {
-            throw new UnsupportedQuery($this, $e->getMessage(), $e->getCode(), $e->getPrevious());
+        } catch (ApiException $e) {
+            throw QueryException::fromApiException($e, $this);
         }
 
         if ($this->sorter) {
@@ -84,7 +98,7 @@ class Query
     /**
      * Convenience method for {@see getSnapshot()}->getValue().
      *
-     * @throws UnsupportedQuery if an error occurred
+     * @throws QueryException if an error occurred
      *
      * @return mixed
      */
@@ -145,6 +159,8 @@ class Query
      *
      * @see https://firebase.google.com/docs/reference/js/firebase.database.Query#limitToFirst
      *
+     * @param int $limit
+     *
      * @return Query
      */
     public function limitToFirst(int $limit): self
@@ -156,6 +172,8 @@ class Query
      * Generates a new Query object limited to the last specific number of children.
      *
      * @see https://firebase.google.com/docs/reference/js/firebase.database.Query#limitToLast
+     *
+     * @param int $limit
      *
      * @return Query
      */
@@ -172,7 +190,9 @@ class Query
      *
      * @see https://firebase.google.com/docs/reference/js/firebase.database.Query#orderByChild
      *
-     * @throws UnsupportedQuery if the query is already ordered
+     * @param string $childKey
+     *
+     * @throws QueryException if the query is already ordered
      *
      * @return Query
      */
@@ -191,7 +211,7 @@ class Query
      *
      * @see https://firebase.google.com/docs/reference/js/firebase.database.Query#orderByKey
      *
-     * @throws UnsupportedQuery if the query is already ordered
+     * @throws QueryException if the query is already ordered
      *
      * @return Query
      */
@@ -211,7 +231,7 @@ class Query
      *
      * @see https://firebase.google.com/docs/reference/js/firebase.database.Query#orderByValue
      *
-     * @throws UnsupportedQuery if the query is already ordered
+     * @throws QueryException if the query is already ordered
      *
      * @return Query
      */
@@ -246,6 +266,8 @@ class Query
      *
      * Append '.json' to the URL when typed into a browser to download JSON formatted data.
      * If the location is secured (not publicly readable) you will get a permission-denied error.
+     *
+     * @return UriInterface
      */
     public function getUri(): UriInterface
     {
@@ -285,7 +307,7 @@ class Query
     private function withSorter(Sorter $sorter): self
     {
         if ($this->sorter) {
-            throw new UnsupportedQuery($this, 'This query is already ordered.');
+            throw new QueryException($this, 'This query is already ordered.');
         }
 
         $query = clone $this;

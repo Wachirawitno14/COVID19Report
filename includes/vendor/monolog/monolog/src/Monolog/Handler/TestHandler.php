@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 /*
  * This file is part of the Monolog package.
@@ -10,8 +10,6 @@
  */
 
 namespace Monolog\Handler;
-
-use Monolog\Logger;
 
 /**
  * Used for testing purposes.
@@ -67,9 +65,8 @@ use Monolog\Logger;
  */
 class TestHandler extends AbstractProcessingHandler
 {
-    protected $records = [];
-    protected $recordsByLevel = [];
-    private $skipReset = false;
+    protected $records = array();
+    protected $recordsByLevel = array();
 
     public function getRecords()
     {
@@ -78,78 +75,45 @@ class TestHandler extends AbstractProcessingHandler
 
     public function clear()
     {
-        $this->records = [];
-        $this->recordsByLevel = [];
+        $this->records = array();
+        $this->recordsByLevel = array();
     }
 
-    public function reset()
+    public function hasRecords($level)
     {
-        if (!$this->skipReset) {
-            $this->clear();
-        }
+        return isset($this->recordsByLevel[$level]);
     }
 
-    public function setSkipReset(bool $skipReset)
+    public function hasRecord($record, $level)
     {
-        $this->skipReset = $skipReset;
-    }
-
-    /**
-     * @param string|int $level Logging level value or name
-     */
-    public function hasRecords($level): bool
-    {
-        return isset($this->recordsByLevel[Logger::toMonologLevel($level)]);
-    }
-
-    /**
-     * @param string|array $record Either a message string or an array containing message and optionally context keys that will be checked against all records
-     * @param string|int   $level  Logging level value or name
-     */
-    public function hasRecord($record, $level): bool
-    {
-        if (is_string($record)) {
-            $record = array('message' => $record);
+        if (is_array($record)) {
+            $record = $record['message'];
         }
 
         return $this->hasRecordThatPasses(function ($rec) use ($record) {
-            if ($rec['message'] !== $record['message']) {
-                return false;
-            }
-            if (isset($record['context']) && $rec['context'] !== $record['context']) {
-                return false;
-            }
-
-            return true;
+            return $rec['message'] === $record;
         }, $level);
     }
 
-    /**
-     * @param string|int $level Logging level value or name
-     */
-    public function hasRecordThatContains(string $message, $level): bool
+    public function hasRecordThatContains($message, $level)
     {
         return $this->hasRecordThatPasses(function ($rec) use ($message) {
             return strpos($rec['message'], $message) !== false;
         }, $level);
     }
 
-    /**
-     * @param string|int $level Logging level value or name
-     */
-    public function hasRecordThatMatches(string $regex, $level): bool
+    public function hasRecordThatMatches($regex, $level)
     {
         return $this->hasRecordThatPasses(function ($rec) use ($regex) {
             return preg_match($regex, $rec['message']) > 0;
         }, $level);
     }
 
-    /**
-     * @param string|int $level Logging level value or name
-     */
-    public function hasRecordThatPasses(callable $predicate, $level)
+    public function hasRecordThatPasses($predicate, $level)
     {
-        $level = Logger::toMonologLevel($level);
+        if (!is_callable($predicate)) {
+            throw new \InvalidArgumentException("Expected a callable for hasRecordThatSucceeds");
+        }
 
         if (!isset($this->recordsByLevel[$level])) {
             return false;
@@ -167,7 +131,7 @@ class TestHandler extends AbstractProcessingHandler
     /**
      * {@inheritdoc}
      */
-    protected function write(array $record): void
+    protected function write(array $record)
     {
         $this->recordsByLevel[$record['level']][] = $record;
         $this->records[] = $record;
@@ -181,7 +145,7 @@ class TestHandler extends AbstractProcessingHandler
             if (method_exists($this, $genericMethod)) {
                 $args[] = $level;
 
-                return call_user_func_array([$this, $genericMethod], $args);
+                return call_user_func_array(array($this, $genericMethod), $args);
             }
         }
 
